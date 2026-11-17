@@ -1034,27 +1034,41 @@ const copy = getUi(locale);
   }
 
   @media (max-width: 680px) {
+    .hero {
+      overflow: visible;
+      isolation: isolate;
+    }
+
+    .hero__copy {
+      z-index: 2;
+    }
+
     .hero h1 {
       font-size: clamp(3.2rem, 17vw, 5.3rem);
     }
 
     .hero__devices {
-      width: calc(100% + 1rem);
-      height: 310px;
-      margin-top: 2rem;
-      margin-right: -1rem;
+      position: absolute;
+      inset: 1rem -1rem 1rem;
+      z-index: 0;
+      align-self: stretch;
+      justify-self: stretch;
+      width: auto;
+      height: auto;
+      margin: 0;
+      opacity: 0.27;
     }
 
     .laptop {
-      bottom: 7%;
-      left: -4%;
-      width: 83%;
+      bottom: 20%;
+      left: -13%;
+      width: 102%;
     }
 
     .phone {
-      top: 3%;
-      right: -3%;
-      width: 27%;
+      top: 10%;
+      right: -11%;
+      width: 36%;
       border-radius: 1.35rem;
     }
 
@@ -1086,14 +1100,16 @@ const copy = getUi(locale);
     }
 
     .device-chip--bottom {
-      bottom: 0;
-      left: 2%;
+      bottom: 13%;
+      left: -1%;
     }
 
     .hero__foot {
+      position: relative;
+      z-index: 2;
       display: grid;
       gap: 0.6rem;
-      margin-top: 1.5rem;
+      margin-top: 3rem;
     }
 
     .work,
