@@ -1,0 +1,79 @@
+---
+import Icon from "./Icon.astro";
+import type { SocialLink } from "../data/profile";
+
+interface Props {
+  links: readonly SocialLink[];
+  compact?: boolean;
+}
+
+const { links, compact = false } = Astro.props;
+---
+
+<ul class:list={["social-links", { "social-links--compact": compact }]} aria-label="Контакти">
+  {
+    links.map((link) => (
+      <li>
+        <a
+          href={link.href}
+          aria-label={link.label}
+          title={link.label}
+          target={link.href.startsWith("http") ? "_blank" : undefined}
+          rel={link.href.startsWith("http") ? "noreferrer" : undefined}
+        >
+          <Icon name={link.icon} size={compact ? 18 : 20} />
+          {!compact && <span>{link.label}</span>}
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.75rem;
+    padding: 0 0.95rem;
+    color: var(--ink);
+    font-size: 0.82rem;
+    font-weight: 650;
+    text-decoration: none;
+    background: color-mix(in srgb, var(--paper) 86%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: 0 8px 28px rgb(36 31 24 / 0.04);
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      background 180ms ease;
+  }
+
+  a:hover {
+    transform: translateY(-3px);
+    background: var(--white);
+    border-color: color-mix(in srgb, var(--ink) 28%, var(--line));
+  }
+
+  a:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .social-links--compact a {
+    justify-content: center;
+    width: 2.55rem;
+    min-height: 2.55rem;
+    padding: 0;
+  }
+</style>

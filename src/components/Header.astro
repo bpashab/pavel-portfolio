@@ -1,0 +1,179 @@
+---
+import { getProfile } from "../data/profile";
+import { localizePath, type Locale } from "../i18n/config";
+import { getUi } from "../i18n/copy";
+import SocialLinks from "./SocialLinks.astro";
+
+interface Props {
+  locale: Locale;
+  home?: boolean;
+}
+
+const { locale, home = false } = Astro.props;
+const profile = getProfile(locale);
+const copy = getUi(locale);
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <a class="brand" href={`/${locale}/`} aria-label={copy.navigation.home}>
+    <span>PB</span>
+    <span class="brand__name">{profile.name}</span>
+  </a>
+
+  {
+    home ? (
+      <nav aria-label={copy.navigation.home}>
+        <a href="#work">{copy.navigation.work}</a>
+        <a href="#projects">{copy.navigation.projects}</a>
+        <a href="#contact">{copy.navigation.contacts}</a>
+      </nav>
+    ) : (
+      <a class="back-link" href={`/${locale}/#projects`}>← {copy.navigation.allProjects}</a>
+    )
+  }
+
+  <div class="header-actions">
+    <div class="language-switch" aria-label={copy.navigation.language}>
+      <a
+        href={localizePath(currentPath, "uk")}
+        data-language="uk"
+        aria-current={locale === "uk" ? "page" : undefined}
+      >
+        UA
+      </a>
+      <a
+        href={localizePath(currentPath, "en")}
+        data-language="en"
+        aria-current={locale === "en" ? "page" : undefined}
+      >
+        EN
+      </a>
+    </div>
+    <SocialLinks links={profile.socials} compact />
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: relative;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: min(100% - 2rem, var(--page-width));
+    min-height: 5.5rem;
+    margin-inline: auto;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: fit-content;
+    color: var(--ink);
+    font-weight: 760;
+    text-decoration: none;
+  }
+
+  .brand > span:first-child {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    aspect-ratio: 1;
+    color: var(--paper);
+    font-size: 0.75rem;
+    letter-spacing: -0.03em;
+    background: var(--ink);
+    border-radius: 50%;
+  }
+
+  .brand__name {
+    font-size: 0.88rem;
+  }
+
+  nav {
+    display: flex;
+    gap: 1.8rem;
+  }
+
+  nav a,
+  .back-link {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 650;
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+
+  nav a:hover,
+  .back-link:hover {
+    color: var(--ink);
+  }
+
+  .header-actions {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .language-switch {
+    display: inline-flex;
+    padding: 0.2rem;
+    background: color-mix(in srgb, var(--soft) 75%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+
+  .language-switch a {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    min-height: 1.8rem;
+    color: var(--muted);
+    font-size: 0.62rem;
+    font-weight: 760;
+    text-decoration: none;
+    border-radius: 999px;
+    transition:
+      color 180ms ease,
+      background 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .language-switch a[aria-current="page"] {
+    color: var(--white);
+    background: var(--ink);
+    box-shadow: 0 3px 10px rgb(23 27 34 / 0.16);
+  }
+
+  .language-switch a:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 900px) {
+    .site-header {
+      grid-template-columns: 1fr auto;
+      min-height: 4.75rem;
+    }
+
+    nav,
+    .back-link {
+      display: none;
+    }
+
+    .brand__name {
+      display: none;
+    }
+
+    .header-actions {
+      gap: 0.45rem;
+    }
+
+    .header-actions :global(.social-links li:nth-child(-n + 2)) {
+      display: none;
+    }
+  }
+</style>

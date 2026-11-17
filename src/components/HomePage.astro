@@ -1,0 +1,1088 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "./Header.astro";
+import Icon from "./Icon.astro";
+import ProjectCard from "./ProjectCard.astro";
+import SocialLinks from "./SocialLinks.astro";
+import { getProfile } from "../data/profile";
+import { projects } from "../data/projects";
+import type { Locale } from "../i18n/config";
+import { getUi } from "../i18n/copy";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const profile = getProfile(locale);
+const copy = getUi(locale);
+---
+
+<BaseLayout locale={locale} title={copy.meta.title} description={copy.meta.description}>
+  <Header locale={locale} home />
+
+  <main>
+    <section class="hero container" aria-labelledby="hero-title">
+      <div class="hero__copy">
+        <p class="eyebrow" data-reveal>{copy.hero.eyebrow}</p>
+        <h1 id="hero-title" data-reveal style="--delay: 70ms">
+          {copy.hero.titleStart}<br />
+          <span class="accent">{copy.hero.titleAccent}</span> {copy.hero.titleEnd}
+        </h1>
+        <p class="hero__intro" data-reveal style="--delay: 140ms">{profile.intro}</p>
+        <a class="hero__cta" href="#projects" data-reveal style="--delay: 210ms">
+          {copy.hero.cta}
+          <Icon name="arrow" size={21} />
+        </a>
+      </div>
+
+      <div
+        class="hero__devices"
+        aria-hidden="true"
+        data-reveal
+        data-scroll-devices
+        style="--delay: 160ms"
+      >
+        <div class="device-glow"></div>
+
+        <div class="laptop">
+          <div class="laptop__screen">
+            <div class="laptop__camera"></div>
+            <div class="laptop__interface">
+              <div class="laptop__sidebar">
+                <span></span><span></span><span></span><span></span>
+              </div>
+              <div class="laptop__content">
+                <span class="laptop__eyebrow"></span>
+                <span class="laptop__headline"></span>
+                <span class="laptop__headline laptop__headline--short"></span>
+                <div class="laptop__cards"><i></i><i></i><i></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="laptop__base"><span></span></div>
+        </div>
+
+        <div class="phone">
+          <div class="phone__screen">
+            <div class="phone__island"></div>
+            <span class="phone__label"></span>
+            <div class="phone__feature">
+              <span></span>
+              <i></i>
+            </div>
+            <div class="phone__stats"><span></span><span></span></div>
+            <div class="phone__dock"><i></i><i></i><i></i></div>
+          </div>
+        </div>
+
+        <span class="device-chip device-chip--top">{copy.hero.experience}</span>
+        <span class="device-chip device-chip--bottom">{copy.hero.location}</span>
+      </div>
+
+      <div class="hero__foot" data-reveal style="--delay: 280ms">
+        <span>{copy.hero.role}</span>
+        <span>{copy.hero.availability}</span>
+      </div>
+    </section>
+
+    <section class="work" id="work">
+      <div class="container">
+        <div class="work__heading" data-reveal>
+          <p class="eyebrow">{copy.work.eyebrow}</p>
+          <h2 class="section-title">{copy.work.title}</h2>
+        </div>
+
+        <div class="work__grid">
+          <article class="work__lead" data-reveal>
+            <span class="work__index">01</span>
+            <div>
+              <p class="work__role">{copy.work.role}</p>
+              <p>{copy.work.description}</p>
+            </div>
+          </article>
+
+          <div class="work__services" aria-label={copy.work.eyebrow}>
+            {
+              copy.work.services.map((service, index) => (
+                <article data-reveal style={`--delay: ${80 + index * 60}ms`}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <h3>{service.title}</h3>
+                  <p>{service.description}</p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="projects container" id="projects" aria-labelledby="projects-title">
+      <div class="projects__heading" data-reveal>
+        <div>
+          <p class="eyebrow">{copy.projects.eyebrow}</p>
+          <h2 class="section-title" id="projects-title">{copy.projects.title}</h2>
+        </div>
+        <p>{copy.projects.description}</p>
+      </div>
+
+      <div class="projects__subhead" data-reveal>
+        <h3>{copy.projects.websites}</h3>
+        <span>{String(projects.length).padStart(2, "0")} {copy.projects.projectCount}</span>
+      </div>
+
+      <div
+        class="projects__carousel"
+        data-reveal
+        data-project-carousel
+        role="region"
+        aria-label={copy.projects.websites}
+      >
+        <div class="projects__drag-hint" aria-hidden="true">
+          <span>↔</span>
+          {copy.projects.dragHint}
+        </div>
+        <div class="projects__track">
+          <div class="projects__group">
+            {
+              projects.map((project, index) => (
+                <ProjectCard project={project} index={index} locale={locale} />
+              ))
+            }
+          </div>
+          <div class="projects__group projects__group--clone" aria-hidden="true" inert>
+            {
+              projects.map((project, index) => (
+                <ProjectCard project={project} index={index} locale={locale} decorative />
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="mobile-projects" data-reveal>
+        <div>
+          <p class="eyebrow">{copy.projects.mobileEyebrow}</p>
+          <h3>{copy.projects.mobileTitle}</h3>
+          <p>{copy.projects.mobileDescription}</p>
+        </div>
+        <span class="mobile-projects__badge">{copy.projects.inProgress}</span>
+        <div class="mobile-projects__phone" aria-hidden="true">
+          <div></div>
+          <span></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="contact__inner container">
+        <p class="eyebrow" data-reveal>{copy.contact.eyebrow}</p>
+        <h2 data-reveal style="--delay: 70ms">
+          {copy.contact.title}<br /><span class="accent">{copy.contact.accent}</span>
+        </h2>
+        <p class="contact__copy" data-reveal style="--delay: 120ms">{copy.contact.description}</p>
+        <div data-reveal style="--delay: 170ms">
+          <SocialLinks links={profile.socials} />
+        </div>
+
+        <footer>
+          <span>© {new Date().getFullYear()} {profile.name} · Software Developer</span>
+        </footer>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    min-height: calc(100svh - 5.5rem);
+    padding-block: clamp(4rem, 10vh, 8rem) 2rem;
+    overflow: visible;
+  }
+
+  .hero__copy {
+    position: relative;
+    z-index: 2;
+    align-self: center;
+  }
+
+  .hero h1 {
+    max-width: 950px;
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(4rem, 8.5vw, 8.8rem);
+    font-weight: 700;
+    letter-spacing: -0.075em;
+    line-height: 0.86;
+  }
+
+  .accent {
+    color: #315fd5;
+  }
+
+  .hero__intro {
+    max-width: 620px;
+    margin: 2.4rem 0 0;
+    color: var(--muted);
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    line-height: 1.7;
+  }
+
+  .hero__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 0.9rem 1.15rem 0.9rem 1.35rem;
+    color: var(--paper);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    background: var(--ink);
+    border-radius: 999px;
+    transition:
+      gap 200ms ease,
+      transform 200ms ease;
+  }
+
+  .hero__cta:hover {
+    gap: 1.5rem;
+    transform: translateY(-3px);
+  }
+
+  .hero__cta:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 4px;
+  }
+
+  .hero__devices {
+    --device-scroll: 0;
+    position: relative;
+    z-index: 1;
+    align-self: center;
+    justify-self: end;
+    width: min(45vw, 650px);
+    height: clamp(390px, 42vw, 520px);
+    margin-right: min(-1rem, calc((var(--page-width) - 100vw) / 2));
+    perspective: 1200px;
+    isolation: isolate;
+  }
+
+  .device-glow {
+    position: absolute;
+    inset: 14% 3% 8% 8%;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 68% 30%, rgb(49 95 213 / 0.2), transparent 25%),
+      radial-gradient(circle at 38% 67%, rgb(105 128 187 / 0.18), transparent 38%);
+    filter: blur(24px);
+    border-radius: 50%;
+    transform: scale(calc(0.92 + var(--device-scroll) * 0.12));
+  }
+
+  .laptop {
+    position: absolute;
+    bottom: 7%;
+    left: 0;
+    width: 79%;
+    transform:
+      translate3d(
+        calc(var(--device-scroll) * -16px),
+        calc(var(--device-scroll) * -14px),
+        0
+      )
+      rotate(calc(-4deg + var(--device-scroll) * 5deg));
+    transform-style: preserve-3d;
+    transition: filter 180ms ease;
+    filter: drop-shadow(0 28px 24px rgb(25 31 45 / 0.16));
+  }
+
+  .laptop__screen {
+    position: relative;
+    width: 91%;
+    aspect-ratio: 16 / 10;
+    margin-inline: auto;
+    padding: 0.52rem;
+    overflow: hidden;
+    background: #20242d;
+    border: 1px solid #4a4f5d;
+    border-radius: 0.8rem 0.8rem 0.35rem 0.35rem;
+    transform: rotateX(calc(58deg - var(--device-scroll) * 50deg));
+    transform-origin: 50% 100%;
+    transform-style: preserve-3d;
+    transition: box-shadow 120ms linear;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+    backface-visibility: hidden;
+  }
+
+  .laptop__camera {
+    position: absolute;
+    top: 0.22rem;
+    left: 50%;
+    z-index: 2;
+    width: 0.22rem;
+    aspect-ratio: 1;
+    background: #6a7080;
+    border-radius: 50%;
+    transform: translateX(-50%);
+  }
+
+  .laptop__interface {
+    display: grid;
+    grid-template-columns: 18% 1fr;
+    height: 100%;
+    overflow: hidden;
+    background: #f3f5f8;
+    border-radius: 0.35rem;
+  }
+
+  .laptop__sidebar {
+    display: grid;
+    align-content: start;
+    gap: 0.55rem;
+    padding: 1rem 0.55rem;
+    background: #e7eaf0;
+    border-right: 1px solid #d4d8e0;
+  }
+
+  .laptop__sidebar span {
+    display: block;
+    width: 100%;
+    height: 0.28rem;
+    background: #c4cad5;
+    border-radius: 999px;
+  }
+
+  .laptop__sidebar span:first-child {
+    width: 42%;
+    height: 0.8rem;
+    margin-bottom: 0.45rem;
+    background: #315fd5;
+    border-radius: 0.22rem;
+  }
+
+  .laptop__content {
+    padding: 1.15rem;
+  }
+
+  .laptop__eyebrow,
+  .laptop__headline {
+    display: block;
+    height: 0.32rem;
+    background: #a7afbe;
+    border-radius: 999px;
+  }
+
+  .laptop__eyebrow {
+    width: 22%;
+    margin-bottom: 0.8rem;
+    background: #315fd5;
+  }
+
+  .laptop__headline {
+    width: 72%;
+    height: 0.65rem;
+    margin-bottom: 0.42rem;
+    background: #202634;
+  }
+
+  .laptop__headline--short {
+    width: 48%;
+  }
+
+  .laptop__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.55rem;
+    margin-top: 1.35rem;
+  }
+
+  .laptop__cards i {
+    display: block;
+    aspect-ratio: 1.35;
+    background: linear-gradient(145deg, #d8deeb, #b9c6e8);
+    border: 1px solid #c5cbd7;
+    border-radius: 0.45rem;
+  }
+
+  .laptop__cards i:nth-child(2) {
+    background: linear-gradient(145deg, #adc0f0, #6f8ddb);
+  }
+
+  .laptop__base {
+    position: relative;
+    width: 100%;
+    height: 1rem;
+    margin-top: -0.08rem;
+    background: linear-gradient(#cbd0d9, #9299a6);
+    clip-path: polygon(5% 0, 95% 0, 100% 70%, 95% 100%, 5% 100%, 0 70%);
+    border-radius: 0 0 1rem 1rem;
+  }
+
+  .laptop__base span {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 18%;
+    height: 0.25rem;
+    background: #aab0bb;
+    border-radius: 0 0 0.35rem 0.35rem;
+    transform: translateX(-50%);
+  }
+
+  .phone {
+    position: absolute;
+    top: 6%;
+    right: -4%;
+    width: 25%;
+    aspect-ratio: 0.49;
+    padding: 0.38rem;
+    background: linear-gradient(145deg, #303640, #11151b);
+    border: 1px solid #4a5160;
+    border-radius: 1.8rem;
+    box-shadow:
+      0 30px 55px rgb(24 32 52 / 0.24),
+      inset 0 0 0 1px rgb(255 255 255 / 0.08);
+    transform:
+      translate3d(
+        calc(var(--device-scroll) * -42px),
+        calc(var(--device-scroll) * 36px),
+        0
+      )
+      rotate(calc(-12deg + var(--device-scroll) * 30deg))
+      rotateY(calc(var(--device-scroll) * -18deg));
+    transform-style: preserve-3d;
+  }
+
+  .phone__screen {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    padding: 2.2rem 0.7rem 0.7rem;
+    background:
+      radial-gradient(circle at 70% 22%, rgb(90 124 214 / 0.45), transparent 30%),
+      linear-gradient(160deg, #f8f9fc 0 45%, #e7ebf5 100%);
+    border-radius: 1.42rem;
+  }
+
+  .phone__island {
+    position: absolute;
+    top: 0.55rem;
+    left: 50%;
+    width: 42%;
+    height: 0.48rem;
+    background: #13171e;
+    border-radius: 999px;
+    transform: translateX(-50%);
+  }
+
+  .phone__label {
+    display: block;
+    width: 42%;
+    height: 0.28rem;
+    margin-bottom: 0.65rem;
+    background: #7e8798;
+    border-radius: 999px;
+  }
+
+  .phone__feature {
+    display: grid;
+    align-content: end;
+    min-height: 44%;
+    padding: 0.55rem;
+    background: linear-gradient(145deg, #315fd5, #1c326d);
+    border-radius: 0.78rem;
+  }
+
+  .phone__feature span {
+    display: block;
+    width: 68%;
+    height: 0.35rem;
+    margin-bottom: 0.35rem;
+    background: rgb(255 255 255 / 0.9);
+    border-radius: 999px;
+  }
+
+  .phone__feature i {
+    display: block;
+    width: 45%;
+    height: 0.2rem;
+    background: rgb(255 255 255 / 0.55);
+    border-radius: 999px;
+  }
+
+  .phone__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+
+  .phone__stats span {
+    display: block;
+    aspect-ratio: 1.2;
+    background: rgb(255 255 255 / 0.76);
+    border: 1px solid #d7dce6;
+    border-radius: 0.55rem;
+  }
+
+  .phone__dock {
+    position: absolute;
+    right: 0.55rem;
+    bottom: 0.5rem;
+    left: 0.55rem;
+    display: flex;
+    justify-content: space-around;
+    padding: 0.42rem;
+    background: rgb(255 255 255 / 0.72);
+    border: 1px solid rgb(255 255 255 / 0.75);
+    border-radius: 0.65rem;
+    backdrop-filter: blur(8px);
+  }
+
+  .phone__dock i {
+    display: block;
+    width: 0.45rem;
+    aspect-ratio: 1;
+    background: #98a0af;
+    border-radius: 50%;
+  }
+
+  .phone__dock i:first-child {
+    background: #315fd5;
+  }
+
+  .device-chip {
+    position: absolute;
+    z-index: 3;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.6rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: rgb(255 255 255 / 0.84);
+    border: 1px solid rgb(255 255 255 / 0.92);
+    border-radius: 999px;
+    box-shadow: 0 18px 50px rgb(31 40 60 / 0.11);
+    backdrop-filter: blur(12px);
+  }
+
+  .device-chip--top {
+    top: 2%;
+    right: 23%;
+    transform: translateY(calc(var(--device-scroll) * -10px));
+  }
+
+  .device-chip--bottom {
+    bottom: 3%;
+    left: 5%;
+    transform: translateY(calc(var(--device-scroll) * 8px));
+  }
+
+  .hero__foot {
+    grid-column: 1 / -1;
+    align-self: end;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 2rem;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-top: 1px solid var(--line);
+  }
+
+  .work {
+    padding-block: clamp(6rem, 12vw, 11rem);
+    color: var(--paper);
+    background: var(--ink);
+    border-radius: 2.5rem 2.5rem 0 0;
+  }
+
+  .work .eyebrow {
+    color: #a8a69e;
+  }
+
+  .work__heading {
+    max-width: 1050px;
+  }
+
+  .work__grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(3rem, 8vw, 8rem);
+    margin-top: clamp(4rem, 9vw, 8rem);
+  }
+
+  .work__lead {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.2rem;
+    align-self: start;
+  }
+
+  .work__index,
+  .work__services article > span {
+    color: #8c8a83;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .work__role {
+    margin: 0 0 1rem !important;
+    color: var(--paper) !important;
+    font-family: var(--display);
+    font-size: clamp(1.8rem, 3vw, 2.7rem) !important;
+    line-height: 1.1 !important;
+  }
+
+  .work__lead p {
+    max-width: 480px;
+    margin: 0;
+    color: #aaa8a1;
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .work__services article {
+    display: grid;
+    grid-template-columns: 2rem 0.5fr 1fr;
+    gap: 1rem;
+    align-items: baseline;
+    padding-block: 1.7rem;
+    border-top: 1px solid #3a3935;
+  }
+
+  .work__services article:last-child {
+    border-bottom: 1px solid #3a3935;
+  }
+
+  .work__services h3 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(1.7rem, 3vw, 2.5rem);
+    font-weight: 650;
+  }
+
+  .work__services p {
+    margin: 0;
+    color: #99978f;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .projects {
+    padding-block: clamp(6rem, 12vw, 11rem);
+  }
+
+  .projects__heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 3rem;
+    align-items: end;
+  }
+
+  .projects__heading > p {
+    max-width: 420px;
+    margin: 0 0 0.5rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .projects__subhead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-top: clamp(5rem, 10vw, 9rem);
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .projects__subhead h3 {
+    margin: 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .projects__subhead span {
+    color: var(--muted);
+    font-size: 0.7rem;
+  }
+
+  .projects__carousel {
+    --carousel-gap: clamp(1.5rem, 3vw, 3rem);
+    position: relative;
+    width: 100vw;
+    margin-top: 2rem;
+    margin-left: calc(50% - 50vw);
+    padding: 3.5rem 0 2rem max(1rem, calc((100vw - var(--page-width)) / 2));
+    overflow: hidden;
+    cursor: grab;
+    touch-action: pan-y;
+    mask-image: linear-gradient(to right, transparent, black 2rem, black calc(100% - 2rem), transparent);
+  }
+
+  .projects__carousel.is-dragging {
+    cursor: grabbing;
+  }
+
+  .projects__drag-hint {
+    position: absolute;
+    top: 0.45rem;
+    right: max(1rem, calc((100vw - var(--page-width)) / 2));
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    color: var(--muted);
+    font-size: 0.62rem;
+    font-weight: 750;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    background: color-mix(in srgb, var(--white) 82%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: 0 8px 28px rgb(31 40 60 / 0.06);
+    backdrop-filter: blur(10px);
+    pointer-events: none;
+  }
+
+  .projects__drag-hint span {
+    display: inline-block;
+    color: var(--focus);
+    font-size: 0.9rem;
+    line-height: 1;
+    animation: drag-hint 1.8s ease-in-out infinite;
+  }
+
+  .projects__track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+
+  .projects__group {
+    display: flex;
+    gap: var(--carousel-gap);
+    padding-right: var(--carousel-gap);
+  }
+
+  .projects__group > :global(.project-card) {
+    flex: 0 0 clamp(360px, 42vw, 560px);
+    width: clamp(360px, 42vw, 560px);
+  }
+
+  @keyframes drag-hint {
+    0%,
+    100% {
+      transform: translateX(-3px);
+    }
+
+    50% {
+      transform: translateX(3px);
+    }
+  }
+
+  .mobile-projects {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 0.55fr;
+    gap: 2rem;
+    align-items: center;
+    min-height: 340px;
+    margin-top: clamp(6rem, 12vw, 11rem);
+    padding: clamp(2rem, 6vw, 5rem);
+    overflow: hidden;
+    background: #e7e2d8;
+    border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+    border-radius: 2rem;
+  }
+
+  .mobile-projects h3 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(2.8rem, 6vw, 5.6rem);
+    font-weight: 680;
+    letter-spacing: -0.055em;
+    line-height: 0.94;
+  }
+
+  .mobile-projects p:not(.eyebrow) {
+    max-width: 490px;
+    margin: 1.2rem 0 0;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  .mobile-projects__badge {
+    align-self: start;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.62rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+
+  .mobile-projects__phone {
+    position: absolute;
+    right: clamp(2rem, 7vw, 7rem);
+    bottom: -7rem;
+    width: min(22vw, 245px);
+    aspect-ratio: 0.5;
+    padding: 0.55rem;
+    background: #242421;
+    border-radius: 2.6rem;
+    box-shadow: 0 30px 80px rgb(54 48 39 / 0.24);
+    transform: rotate(8deg);
+  }
+
+  .mobile-projects__phone > div {
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(circle at 60% 28%, rgb(238 203 151 / 0.7), transparent 26%),
+      linear-gradient(145deg, #ece6dc, #bbb5aa);
+    border-radius: 2.1rem;
+  }
+
+  .mobile-projects__phone span {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    width: 32%;
+    height: 0.42rem;
+    background: #242421;
+    border-radius: 999px;
+    transform: translateX(-50%);
+  }
+
+  .contact {
+    padding-top: clamp(6rem, 10vw, 9rem);
+    color: var(--paper);
+    background: #171b22;
+    border-radius: 2.5rem 2.5rem 0 0;
+  }
+
+  .contact .eyebrow {
+    color: #aaa89e;
+  }
+
+  .contact h2 {
+    max-width: 1050px;
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(4rem, 10vw, 9rem);
+    font-weight: 700;
+    letter-spacing: -0.075em;
+    line-height: 0.83;
+  }
+
+  .contact__copy {
+    max-width: 600px;
+    margin: 2.5rem 0;
+    color: #aaa89f;
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .contact :global(.social-links a) {
+    color: var(--paper);
+    background: #32322e;
+    border-color: #494840;
+  }
+
+  .contact :global(.social-links a:hover) {
+    background: #3c3b36;
+    border-color: #68665d;
+  }
+
+  footer {
+    display: flex;
+    margin-top: clamp(6rem, 12vw, 11rem);
+    padding-block: 1.5rem;
+    color: #86847c;
+    font-size: 0.72rem;
+    border-top: 1px solid #42413b;
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding-block: 5rem 2rem;
+    }
+
+    .hero__devices {
+      justify-self: end;
+      width: min(100%, 560px);
+      height: 430px;
+      margin-top: 2.5rem;
+      margin-right: -1rem;
+    }
+
+    .hero__foot {
+      margin-top: 2.5rem;
+    }
+
+    .work__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .projects__heading {
+      display: block;
+    }
+
+    .projects__heading > p {
+      margin-top: 1.5rem;
+    }
+
+    .projects__carousel {
+      width: auto;
+      margin-left: 0;
+      padding: 0;
+      overflow: visible;
+      mask-image: none;
+    }
+
+    .projects__track {
+      display: block;
+      width: auto;
+      transform: none !important;
+    }
+
+    .projects__drag-hint {
+      display: none;
+    }
+
+    .projects__group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(4rem, 8vw, 8rem) clamp(1.5rem, 4vw, 3.5rem);
+      padding: 0;
+    }
+
+    .projects__group--clone {
+      display: none;
+    }
+
+    .projects__group > :global(.project-card) {
+      width: auto;
+    }
+
+    .mobile-projects {
+      grid-template-columns: 1fr;
+    }
+
+    .mobile-projects__badge {
+      justify-self: start;
+    }
+
+    .mobile-projects__phone {
+      right: -2rem;
+      width: 210px;
+      opacity: 0.45;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .hero h1 {
+      font-size: clamp(3.2rem, 17vw, 5.3rem);
+    }
+
+    .hero__devices {
+      width: calc(100% + 1rem);
+      height: 310px;
+      margin-top: 2rem;
+      margin-right: -1rem;
+    }
+
+    .laptop {
+      bottom: 7%;
+      left: -4%;
+      width: 83%;
+    }
+
+    .phone {
+      top: 3%;
+      right: -3%;
+      width: 27%;
+      border-radius: 1.35rem;
+    }
+
+    .phone__screen {
+      padding: 1.75rem 0.5rem 0.5rem;
+      border-radius: 1.05rem;
+    }
+
+    .phone__stats,
+    .phone__dock {
+      display: none;
+    }
+
+    .laptop__content {
+      padding: 0.75rem;
+    }
+
+    .laptop__cards {
+      margin-top: 0.8rem;
+    }
+
+    .device-chip {
+      padding: 0.5rem 0.6rem;
+      font-size: 0.48rem;
+    }
+
+    .device-chip--top {
+      right: 22%;
+    }
+
+    .device-chip--bottom {
+      bottom: 0;
+      left: 2%;
+    }
+
+    .hero__foot {
+      display: grid;
+      gap: 0.6rem;
+      margin-top: 1.5rem;
+    }
+
+    .work,
+    .contact {
+      border-radius: 1.5rem 1.5rem 0 0;
+    }
+
+    .work__services article {
+      grid-template-columns: 2rem 1fr;
+    }
+
+    .work__services p {
+      grid-column: 2;
+    }
+
+    .projects__group {
+      grid-template-columns: 1fr;
+    }
+
+    .mobile-projects {
+      min-height: 420px;
+      padding: 2rem;
+    }
+
+    footer {
+      display: grid;
+    }
+  }
+
+</style>

@@ -1,0 +1,230 @@
+---
+import type { Project } from "../data/projects";
+import { localizeProject } from "../data/projectTranslations";
+import type { Locale } from "../i18n/config";
+import { getUi } from "../i18n/copy";
+import Icon from "./Icon.astro";
+
+interface Props {
+  project: Project;
+  index: number;
+  locale: Locale;
+  decorative?: boolean;
+}
+
+const { project: baseProject, index, locale, decorative = false } = Astro.props;
+const project = localizeProject(baseProject, locale);
+const copy = getUi(locale);
+const CardLink = decorative ? "div" : "a";
+---
+
+<article
+  class={`project-card project-card--${project.tone}`}
+  data-reveal={decorative ? undefined : ""}
+  aria-hidden={decorative ? "true" : undefined}
+  style={`--delay: ${index * 90}ms`}
+>
+  <CardLink
+    class="project-card__link"
+    href={decorative ? undefined : `/${locale}/projects/${project.slug}/`}
+    data-carousel-link={decorative ? `/${locale}/projects/${project.slug}/` : undefined}
+    aria-label={decorative ? undefined : `${copy.projects.details} ${project.title}`}
+    draggable="false"
+  >
+    <div class="project-card__visual">
+      <img
+        src={project.image}
+        alt={project.imageAlt}
+        width="1024"
+        height="576"
+        loading="lazy"
+        draggable="false"
+      />
+      <span class="project-card__number">0{index + 1}</span>
+      <span class="project-card__arrow"><Icon name="arrow" size={22} /></span>
+    </div>
+
+    <div class="project-card__content">
+      <div class="project-card__meta">
+        <span>{project.eyebrow}</span>
+        <span>{project.year}</span>
+      </div>
+      <h3>{project.title}</h3>
+      <p>{project.shortDescription}</p>
+      <ul aria-label="Технології та напрямки">
+        {project.tags.map((tag) => <li>{tag}</li>)}
+      </ul>
+    </div>
+  </CardLink>
+</article>
+
+<style>
+  .project-card {
+    --accent: #d18a3a;
+    position: relative;
+  }
+
+  .project-card--lime {
+    --accent: #a5b92e;
+  }
+
+  .project-card--rose {
+    --accent: #d06c55;
+  }
+
+  .project-card__link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    user-select: none;
+  }
+
+  .project-card__visual {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #e9e6df;
+    border-radius: 1.6rem;
+    box-shadow: 0 24px 70px rgb(44 38 28 / 0.09);
+    isolation: isolate;
+    transition:
+      transform 500ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 500ms ease;
+  }
+
+  .project-card__visual::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(135deg, transparent 48%, color-mix(in srgb, var(--accent) 40%, transparent));
+    opacity: 0;
+    content: "";
+    transition: opacity 400ms ease;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-card__number {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 2.7rem;
+    aspect-ratio: 1;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 750;
+    background: rgb(16 16 15 / 0.64);
+    border: 1px solid rgb(255 255 255 / 0.24);
+    border-radius: 50%;
+    backdrop-filter: blur(10px);
+  }
+
+  .project-card__arrow {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    aspect-ratio: 1;
+    color: var(--ink);
+    background: var(--paper);
+    border-radius: 50%;
+    transform: translate(0.35rem, 0.35rem) rotate(-35deg);
+    opacity: 0;
+    transition:
+      transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 250ms ease;
+  }
+
+  .project-card__content {
+    padding: 1.3rem 0.25rem 0;
+  }
+
+  .project-card__meta {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    margin: 0.45rem 0 0.55rem;
+    font-family: var(--display);
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 680;
+    letter-spacing: -0.055em;
+    line-height: 1;
+  }
+
+  p {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    padding: 0.4rem 0.65rem;
+    color: color-mix(in srgb, var(--ink) 72%, var(--muted));
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--soft);
+    border-radius: 999px;
+  }
+
+  .project-card__link:hover .project-card__visual {
+    transform: translateY(-8px) rotate(-0.35deg);
+    box-shadow: 0 34px 90px rgb(44 38 28 / 0.16);
+  }
+
+  .project-card__link:hover img {
+    transform: scale(1.045);
+  }
+
+  .project-card__link:hover .project-card__visual::after {
+    opacity: 1;
+  }
+
+  .project-card__link:hover .project-card__arrow {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+
+  .project-card__link:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 8px;
+    border-radius: 1.6rem;
+  }
+
+  @media (max-width: 720px) {
+    .project-card__arrow {
+      transform: none;
+      opacity: 1;
+    }
+  }
+</style>

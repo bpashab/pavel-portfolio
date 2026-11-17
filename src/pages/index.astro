@@ -1,0 +1,22 @@
+---
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0;url=/en/" />
+    <title>Redirecting…</title>
+    <script is:inline>
+      const savedLocale = document.cookie.match(/(?:^|;\s*)site_locale=(uk|en)(?:;|$)/)?.[1];
+      const browserLocale = navigator.language.toLowerCase().startsWith("uk") ? "uk" : "en";
+      const locale = savedLocale || browserLocale;
+      window.location.replace(`/${locale}/${window.location.search}${window.location.hash}`);
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to <a href="/en/">English</a> / <a href="/uk/">Українська</a>…</p>
+  </body>
+</html>
