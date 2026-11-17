@@ -77,30 +77,60 @@ const enUrl = Astro.site ? new URL(localizePath(Astro.url.pathname, "en"), Astro
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
       if (deviceScenes.length > 0) {
+        const deviceStates = Array.from(deviceScenes, (scene) => ({
+          scene,
+          current: 0,
+          target: 0,
+        }));
         let animationFrame = 0;
+        let previousFrame = performance.now();
 
-        const updateDevices = () => {
-          for (const scene of deviceScenes) {
-            const hero = scene.closest<HTMLElement>(".hero");
-            if (!hero) continue;
+        const readProgress = (scene: HTMLElement) => {
+          if (reducedMotion) return 0.65;
 
-            const distance = Math.max(Math.min(hero.offsetHeight * 0.65, window.innerHeight * 0.8), 1);
-            const progress = reducedMotion
-              ? 0.65
-              : Math.min(Math.max(-hero.getBoundingClientRect().top / distance, 0), 1);
+          const hero = scene.closest<HTMLElement>(".hero");
+          if (!hero) return 0;
 
-            scene.style.setProperty("--device-scroll", progress.toFixed(3));
+          const distance = Math.max(Math.min(hero.offsetHeight * 0.65, window.innerHeight * 0.8), 1);
+          return Math.min(Math.max(-hero.getBoundingClientRect().top / distance, 0), 1);
+        };
+
+        const animateDevices = (time: number) => {
+          const elapsed = Math.min(time - previousFrame, 64);
+          const smoothing = 1 - Math.exp(-elapsed / 55);
+          let unsettled = false;
+          previousFrame = time;
+
+          for (const state of deviceStates) {
+            state.current += (state.target - state.current) * smoothing;
+
+            if (Math.abs(state.target - state.current) < 0.0005) {
+              state.current = state.target;
+            } else {
+              unsettled = true;
+            }
+
+            state.scene.style.setProperty("--device-scroll", state.current.toFixed(4));
           }
 
-          animationFrame = 0;
+          animationFrame = unsettled ? window.requestAnimationFrame(animateDevices) : 0;
         };
 
         const scheduleDeviceUpdate = () => {
+          for (const state of deviceStates) {
+            state.target = readProgress(state.scene);
+          }
+
           if (animationFrame) return;
-          animationFrame = window.requestAnimationFrame(updateDevices);
+          previousFrame = performance.now();
+          animationFrame = window.requestAnimationFrame(animateDevices);
         };
 
-        updateDevices();
+        for (const state of deviceStates) {
+          state.target = readProgress(state.scene);
+          state.current = state.target;
+          state.scene.style.setProperty("--device-scroll", state.current.toFixed(4));
+        }
 
         if (!reducedMotion) {
           window.addEventListener("scroll", scheduleDeviceUpdate, { passive: true });
