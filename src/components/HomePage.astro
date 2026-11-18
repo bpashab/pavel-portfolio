@@ -48,6 +48,12 @@ const copy = getUi(locale);
         <div class="laptop">
           <div class="laptop__shadow"></div>
           <div class="laptop__rig">
+            <div class="laptop__screen-back"></div>
+            <i class="laptop__screen-layer" style="--layer: 0.8"></i>
+            <i class="laptop__screen-layer" style="--layer: 0.6"></i>
+            <i class="laptop__screen-layer" style="--layer: 0.4"></i>
+            <i class="laptop__screen-layer" style="--layer: 0.2"></i>
+            <div class="laptop__screen-edge"></div>
             <div class="laptop__screen">
               <div class="laptop__camera"></div>
               <div class="laptop__interface">
@@ -62,12 +68,6 @@ const copy = getUi(locale);
                 </div>
               </div>
             </div>
-            <i class="laptop__screen-layer" style="--layer: 0.2"></i>
-            <i class="laptop__screen-layer" style="--layer: 0.4"></i>
-            <i class="laptop__screen-layer" style="--layer: 0.6"></i>
-            <i class="laptop__screen-layer" style="--layer: 0.8"></i>
-            <div class="laptop__screen-back"></div>
-            <div class="laptop__screen-edge"></div>
 
             <div class="laptop__base-3d">
               <div class="laptop__deck">
@@ -344,10 +344,12 @@ const copy = getUi(locale);
     inset: 0;
     padding: 0.42rem;
     overflow: hidden;
-    background: linear-gradient(145deg, #303640, #11151b);
+    background: transparent;
     border: 1px solid #4a5160;
     border-radius: 0.78rem 0.78rem 0.18rem 0.18rem;
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+    transform: translateZ(0.5px);
+    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
   }
 
@@ -356,9 +358,11 @@ const copy = getUi(locale);
     position: absolute;
     inset: 0;
     display: block;
-    background: linear-gradient(145deg, #2d333d, #11151b);
-    border: 1px solid #4a5160;
+    background: transparent;
+    border: 0.44rem solid #1f242d;
     border-radius: 0.78rem 0.78rem 0.18rem 0.18rem;
+    outline: 1px solid #4a5160;
+    outline-offset: -1px;
     transform: translateZ(calc(var(--lid-depth) * var(--layer, 1) * -1));
   }
 
@@ -401,6 +405,7 @@ const copy = getUi(locale);
     overflow: hidden;
     background: #f8fafd;
     border-radius: 0.42rem;
+    box-shadow: 0 0 0 0.55rem #222730;
   }
 
   .laptop__sidebar {
@@ -1154,6 +1159,15 @@ const copy = getUi(locale);
       padding-top: 2.5rem;
     }
 
+    .hero::before {
+      position: absolute;
+      inset: -5rem -1rem 0;
+      z-index: 1;
+      pointer-events: none;
+      background: rgb(247 247 245 / 0.73);
+      content: "";
+    }
+
     .hero__copy {
       z-index: 2;
     }
@@ -1171,7 +1185,6 @@ const copy = getUi(locale);
       width: auto;
       height: auto;
       margin: 0;
-      opacity: 0.27;
     }
 
     .laptop {
