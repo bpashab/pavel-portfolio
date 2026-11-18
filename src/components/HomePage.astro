@@ -46,21 +46,39 @@ const copy = getUi(locale);
         <div class="device-glow"></div>
 
         <div class="laptop">
-          <div class="laptop__screen">
-            <div class="laptop__camera"></div>
-            <div class="laptop__interface">
-              <div class="laptop__sidebar">
-                <span></span><span></span><span></span><span></span>
-              </div>
-              <div class="laptop__content">
-                <span class="laptop__eyebrow"></span>
-                <span class="laptop__headline"></span>
-                <span class="laptop__headline laptop__headline--short"></span>
-                <div class="laptop__cards"><i></i><i></i><i></i></div>
+          <div class="laptop__shadow"></div>
+          <div class="laptop__rig">
+            <div class="laptop__screen">
+              <div class="laptop__camera"></div>
+              <div class="laptop__interface">
+                <div class="laptop__sidebar">
+                  <span></span><span></span><span></span><span></span>
+                </div>
+                <div class="laptop__content">
+                  <span class="laptop__eyebrow"></span>
+                  <span class="laptop__headline"></span>
+                  <span class="laptop__headline laptop__headline--short"></span>
+                  <div class="laptop__cards"><i></i><i></i><i></i></div>
+                </div>
               </div>
             </div>
+            <i class="laptop__screen-layer" style="--layer: 0.2"></i>
+            <i class="laptop__screen-layer" style="--layer: 0.4"></i>
+            <i class="laptop__screen-layer" style="--layer: 0.6"></i>
+            <i class="laptop__screen-layer" style="--layer: 0.8"></i>
+            <div class="laptop__screen-back"></div>
+            <div class="laptop__screen-edge"></div>
+
+            <div class="laptop__base-3d">
+              <div class="laptop__deck">
+                <div class="laptop__keys"></div>
+                <div class="laptop__trackpad"></div>
+              </div>
+              <div class="laptop__base-bottom"></div>
+              <div class="laptop__base-side"><i></i><i></i></div>
+              <div class="laptop__base-front"><span></span></div>
+            </div>
           </div>
-          <div class="laptop__base"><span></span></div>
         </div>
 
         <div class="phone">
@@ -76,8 +94,6 @@ const copy = getUi(locale);
           </div>
         </div>
 
-        <span class="device-chip device-chip--top">{copy.hero.experience}</span>
-        <span class="device-chip device-chip--bottom">{copy.hero.location}</span>
       </div>
 
       <div class="hero__foot" data-reveal style="--delay: 280ms">
@@ -95,7 +111,6 @@ const copy = getUi(locale);
 
         <div class="work__grid">
           <article class="work__lead" data-reveal>
-            <span class="work__index">01</span>
             <div>
               <p class="work__role">{copy.work.role}</p>
               <p>{copy.work.description}</p>
@@ -106,7 +121,6 @@ const copy = getUi(locale);
             {
               copy.work.services.map((service, index) => (
                 <article data-reveal style={`--delay: ${80 + index * 60}ms`}>
-                  <span>{String(index + 1).padStart(2, "0")}</span>
                   <h3>{service.title}</h3>
                   <p>{service.description}</p>
                 </article>
@@ -226,8 +240,9 @@ const copy = getUi(locale);
   .hero__intro {
     max-width: 620px;
     margin: 2.4rem 0 0;
-    color: var(--muted);
+    color: #3f4650;
     font-size: clamp(1rem, 1.5vw, 1.2rem);
+    font-weight: 480;
     line-height: 1.7;
   }
 
@@ -285,61 +300,107 @@ const copy = getUi(locale);
   }
 
   .laptop {
+    --lid-depth: 4.5px;
+    --base-depth: 6.5px;
     position: absolute;
-    bottom: 7%;
+    bottom: 11%;
     left: 0;
-    width: 79%;
-    transform:
-      translate3d(
-        calc(var(--device-scroll) * -16px),
-        calc(var(--device-scroll) * -14px),
-        0
-      )
-      rotate(calc(-4deg + var(--device-scroll) * 5deg));
+    width: 76%;
+    perspective: 1200px;
+    perspective-origin: 50% 100%;
+    transform: translate3d(
+      calc((1 - var(--device-scroll)) * 14% - var(--device-scroll) * 10px),
+      calc(var(--device-scroll) * -8px),
+      0
+    );
+    will-change: transform;
+  }
+
+  .laptop__shadow {
+    position: absolute;
+    top: calc(100% + 8px + var(--device-scroll) * 6px);
+    left: calc((1 - var(--device-scroll)) * -4% + var(--device-scroll) * 4%);
+    width: calc(56% + var(--device-scroll) * 38%);
+    height: calc(10px + var(--device-scroll) * 12px);
+    background: radial-gradient(ellipse at center, rgb(24 32 52 / 0.2), transparent 72%);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .laptop__rig {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    transform-origin: 50% 100%;
     transform-style: preserve-3d;
-    transition: filter 180ms ease;
-    filter: drop-shadow(0 28px 24px rgb(25 31 45 / 0.16));
+    transform:
+      rotateX(calc(var(--device-scroll) * -1deg))
+      rotateY(calc(-90deg + var(--device-scroll) * 84deg));
     will-change: transform;
   }
 
   .laptop__screen {
-    position: relative;
-    width: 91%;
-    aspect-ratio: 16 / 10;
-    margin-inline: auto;
-    padding: 0.52rem;
+    position: absolute;
+    inset: 0;
+    padding: 0.42rem;
     overflow: hidden;
-    background: #20242d;
-    border: 1px solid #4a4f5d;
-    border-radius: 0.8rem 0.8rem 0.35rem 0.35rem;
-    transform: rotateX(calc(58deg - var(--device-scroll) * 50deg));
-    transform-origin: 50% 100%;
-    transform-style: preserve-3d;
-    transition: box-shadow 120ms linear;
+    background: linear-gradient(145deg, #303640, #11151b);
+    border: 1px solid #4a5160;
+    border-radius: 0.78rem 0.78rem 0.18rem 0.18rem;
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
     backface-visibility: hidden;
-    will-change: transform;
+  }
+
+  .laptop__screen-layer,
+  .laptop__screen-back {
+    position: absolute;
+    inset: 0;
+    display: block;
+    background: linear-gradient(145deg, #2d333d, #11151b);
+    border: 1px solid #4a5160;
+    border-radius: 0.78rem 0.78rem 0.18rem 0.18rem;
+    transform: translateZ(calc(var(--lid-depth) * var(--layer, 1) * -1));
+  }
+
+  .laptop__screen-edge {
+    --edge-tuck: clamp(0, calc(var(--device-scroll) * 10), 1);
+    position: absolute;
+    top: calc(var(--edge-tuck) * 0.76rem);
+    left: 100%;
+    width: var(--lid-depth);
+    height: calc(100% - var(--edge-tuck) * 0.76rem);
+    background: linear-gradient(90deg, #353c48 0%, #20252e 55%, #11151b 100%);
+    border-top: calc((1 - var(--edge-tuck)) * 1px) solid #4a5160;
+    border-right: 1px solid #4a5160;
+    border-bottom: 0;
+    border-left: calc((1 - var(--edge-tuck)) * 1px) solid #4a5160;
+    border-radius: calc((1 - var(--edge-tuck)) * 0.24rem)
+      calc((1 - var(--edge-tuck)) * 0.24rem) 0 0;
+    transform-origin: 0% 50%;
+    transform: rotateY(90deg);
   }
 
   .laptop__camera {
     position: absolute;
-    top: 0.22rem;
+    top: 0.16rem;
     left: 50%;
     z-index: 2;
-    width: 0.22rem;
+    width: 0.18rem;
     aspect-ratio: 1;
-    background: #6a7080;
+    background: #5b6375;
     border-radius: 50%;
     transform: translateX(-50%);
   }
 
   .laptop__interface {
+    position: relative;
+    z-index: 1;
     display: grid;
     grid-template-columns: 18% 1fr;
     height: 100%;
     overflow: hidden;
-    background: #f3f5f8;
-    border-radius: 0.35rem;
+    background: #f8fafd;
+    border-radius: 0.42rem;
   }
 
   .laptop__sidebar {
@@ -389,11 +450,12 @@ const copy = getUi(locale);
     width: 72%;
     height: 0.65rem;
     margin-bottom: 0.42rem;
-    background: #202634;
+    background: #b6c0d1;
   }
 
   .laptop__headline--short {
     width: 48%;
+    background: #c5cedd;
   }
 
   .laptop__cards {
@@ -415,24 +477,119 @@ const copy = getUi(locale);
     background: linear-gradient(145deg, #adc0f0, #6f8ddb);
   }
 
-  .laptop__base {
-    position: relative;
+  .laptop__base-3d {
+    position: absolute;
+    top: 100%;
+    left: 0;
     width: 100%;
-    height: 1rem;
-    margin-top: -0.08rem;
-    background: linear-gradient(#cbd0d9, #9299a6);
-    clip-path: polygon(5% 0, 95% 0, 100% 70%, 95% 100%, 5% 100%, 0 70%);
-    border-radius: 0 0 1rem 1rem;
+    height: 94%;
+    transform-origin: 50% 0%;
+    transform-style: preserve-3d;
+    transform: rotateX(90deg);
   }
 
-  .laptop__base span {
+  .laptop__deck {
     position: absolute;
-    top: 0;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 7% 7.5% 5.5%;
+    background: linear-gradient(145deg, #303640, #161b22);
+    border: 1px solid #4a5160;
+    border-radius: 0.12rem 0.12rem 0 0.34rem;
+    backface-visibility: hidden;
+  }
+
+  .laptop__keys {
+    height: 55%;
+    background:
+      repeating-linear-gradient(
+        180deg,
+        #12161d 0 14%,
+        #222832 14% 20%
+      );
+    border: 1px solid #3c4352;
+    border-radius: 0.26rem;
+  }
+
+  .laptop__trackpad {
+    width: 31%;
+    height: 29%;
+    margin-inline: auto;
+    background: #232934;
+    border: 1px solid #3f4656;
+    border-radius: 0.24rem;
+  }
+
+  .laptop__base-bottom {
+    position: absolute;
+    inset: 0;
+    background: #11151b;
+    border: 1px solid #3c4352;
+    border-radius: 0.14rem 0.14rem 0.12rem 0.34rem;
+    transform: translateZ(calc(var(--base-depth) * -1)) rotateY(180deg);
+    backface-visibility: hidden;
+  }
+
+  .laptop__base-side {
+    --corner-join: clamp(0, calc(var(--device-scroll) * 10), 1);
+    position: absolute;
+    top: calc(var(--lid-depth) * -1);
+    left: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    width: var(--base-depth);
+    height: calc(100% + var(--lid-depth));
+    padding-top: 1.1rem;
+    background: linear-gradient(90deg, #353c48 0%, #141920 100%);
+    border-top: 1px solid #4a5160;
+    border-right: 1px solid #252b36;
+    border-bottom: calc((1 - var(--corner-join)) * 1px) solid #4a5160;
+    border-left: 1px solid #4a5160;
+    border-radius: 0 0.22rem calc((1 - var(--corner-join)) * 0.28rem) 0;
+    transform-origin: 0% 50%;
+    transform: rotateY(90deg);
+  }
+
+  .laptop__base-side i {
+    display: block;
+    width: 1.5px;
+    height: 0.36rem;
+    background: #0b0e13;
+    box-shadow: 0 0 0 0.5px rgb(255 255 255 / 0.2);
+    border-radius: 999px;
+  }
+
+  .laptop__base-front {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: var(--base-depth);
+    background: linear-gradient(180deg, #353c48 0%, #141920 100%);
+    border-top: 1px solid #4a5160;
+    border-right: 0;
+    border-bottom: 1px solid #252b36;
+    border-left: 1px solid #4a5160;
+    border-radius: 0.06rem 0 0 0.34rem;
+    transform-origin: 50% 0%;
+    transform: rotateX(-90deg);
+    backface-visibility: hidden;
+  }
+
+  .laptop__base-front span {
+    position: absolute;
+    top: -1px;
     left: 50%;
-    width: 18%;
-    height: 0.25rem;
-    background: #aab0bb;
-    border-radius: 0 0 0.35rem 0.35rem;
+    width: 13%;
+    height: 52%;
+    background: #232933;
+    border: 1px solid #4a5160;
+    border-top-color: #3a414e;
+    border-radius: 0 0 0.2rem 0.2rem;
     transform: translateX(-50%);
   }
 
@@ -560,34 +717,6 @@ const copy = getUi(locale);
     background: #315fd5;
   }
 
-  .device-chip {
-    position: absolute;
-    z-index: 3;
-    padding: 0.65rem 0.85rem;
-    font-size: 0.6rem;
-    font-weight: 750;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    background: rgb(255 255 255 / 0.84);
-    border: 1px solid rgb(255 255 255 / 0.92);
-    border-radius: 999px;
-    box-shadow: 0 18px 50px rgb(31 40 60 / 0.11);
-    backdrop-filter: blur(12px);
-  }
-
-  .device-chip--top {
-    top: 2%;
-    right: 23%;
-    transform: translateY(calc(var(--device-scroll) * -10px));
-  }
-
-  .device-chip--bottom {
-    bottom: 3%;
-    left: 5%;
-    transform: translateY(calc(var(--device-scroll) * 8px));
-  }
-
   .hero__foot {
     grid-column: 1 / -1;
     align-self: end;
@@ -625,18 +754,7 @@ const copy = getUi(locale);
   }
 
   .work__lead {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 1.2rem;
     align-self: start;
-  }
-
-  .work__index,
-  .work__services article > span {
-    color: #8c8a83;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
   }
 
   .work__role {
@@ -657,7 +775,7 @@ const copy = getUi(locale);
 
   .work__services article {
     display: grid;
-    grid-template-columns: 2rem 0.5fr 1fr;
+    grid-template-columns: 0.5fr 1fr;
     gap: 1rem;
     align-items: baseline;
     padding-block: 1.7rem;
@@ -940,17 +1058,14 @@ const copy = getUi(locale);
       display: none;
     }
 
-    .laptop {
-      filter: none;
+    .laptop__shadow {
+      display: none;
     }
 
     .laptop__screen {
-      box-shadow:
-        0 14px 28px rgb(25 31 45 / 0.13),
-        inset 0 0 0 1px rgb(255 255 255 / 0.08);
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
     }
 
-    .laptop,
     .laptop__screen,
     .phone {
       -webkit-backface-visibility: hidden;
@@ -963,7 +1078,6 @@ const copy = getUi(locale);
         inset 0 0 0 1px rgb(255 255 255 / 0.08);
     }
 
-    .device-chip,
     .phone__dock {
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
@@ -1037,6 +1151,7 @@ const copy = getUi(locale);
     .hero {
       overflow: visible;
       isolation: isolate;
+      padding-top: 2.5rem;
     }
 
     .hero__copy {
@@ -1060,13 +1175,15 @@ const copy = getUi(locale);
     }
 
     .laptop {
-      bottom: 20%;
-      left: -13%;
-      width: 102%;
+      --lid-depth: 4px;
+      --base-depth: 6px;
+      bottom: 16%;
+      left: 4%;
+      width: 92%;
     }
 
     .phone {
-      top: 10%;
+      top: 2%;
       right: -11%;
       width: 36%;
       border-radius: 1.35rem;
@@ -1090,20 +1207,6 @@ const copy = getUi(locale);
       margin-top: 0.8rem;
     }
 
-    .device-chip {
-      padding: 0.5rem 0.6rem;
-      font-size: 0.48rem;
-    }
-
-    .device-chip--top {
-      right: 22%;
-    }
-
-    .device-chip--bottom {
-      bottom: 13%;
-      left: -1%;
-    }
-
     .hero__foot {
       position: relative;
       z-index: 2;
@@ -1118,11 +1221,11 @@ const copy = getUi(locale);
     }
 
     .work__services article {
-      grid-template-columns: 2rem 1fr;
+      grid-template-columns: 1fr;
     }
 
     .work__services p {
-      grid-column: 2;
+      grid-column: auto;
     }
 
     .projects__group {
