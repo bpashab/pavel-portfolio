@@ -65,10 +65,30 @@ const copy = getUi(locale);
       <img src={project.image} alt={project.imageAlt} width="1024" height="576" decoding="async" />
     </div>
 
-    <section class="case container" aria-label={copy.caseStudy.descriptionLabel}>
+    <section class={`case case--${project.tone} container`} aria-label={copy.caseStudy.descriptionLabel}>
       <div class="case__intro" data-reveal>
-        <p class="eyebrow">{copy.caseStudy.about}</p>
-        <p>{project.introduction}</p>
+        <div class="case__intro-side">
+          <p class="eyebrow">{copy.caseStudy.about}</p>
+          <ul class="case__tags">
+            {project.tags.map((tag) => <li>{tag}</li>)}
+          </ul>
+        </div>
+
+        <div class="case__intro-main">
+          <p class="case__lead">{project.overviewLead}</p>
+          <p class="case__body">{project.introduction}</p>
+
+          <dl class="case__highlights">
+            {
+              project.highlights.map((item) => (
+                <div>
+                  <dt>{item.label}</dt>
+                  <dd>{item.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
       </div>
 
       <div class="case__columns">
@@ -83,6 +103,75 @@ const copy = getUi(locale);
           <p>{project.solution}</p>
         </article>
       </div>
+
+      {
+        project.sections && project.sections.length > 0 && (
+          <div class="case__showcases">
+            {project.sections.map((section) => {
+              const isSingle = section.screenshots.length === 1;
+              return (
+                <section class={`showcase ${isSingle ? "showcase--split" : ""}`}>
+                  <div class="showcase__copy" data-reveal>
+                    <div>
+                      <p class="eyebrow">{section.eyebrow}</p>
+                      <h2>{section.title}</h2>
+                      <p class="showcase__description">{section.description}</p>
+                    </div>
+
+                    <ul class="showcase__bullets">
+                      {section.bullets.map((bullet) => (
+                        <li>{bullet}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div
+                    class={`showcase__gallery ${
+                      section.screenshots.length === 3 ? "showcase__gallery--three" : ""
+                    }`}
+                  >
+                    {section.screenshots.map((shot, shotIndex) => (
+                      <figure
+                        class="showcase-card"
+                        data-reveal
+                        style={`--delay: ${shotIndex * 70}ms`}
+                      >
+                        <button
+                          type="button"
+                          class="showcase-card__trigger"
+                          data-lightbox-src={shot.src}
+                          data-lightbox-alt={shot.alt}
+                          data-lightbox-caption={shot.caption}
+                          aria-label={`${copy.caseStudy.zoomScreenshot}: ${shot.caption}`}
+                        >
+                          <div
+                            class="showcase-card__media"
+                            data-cover-frame
+                            style={`aspect-ratio: ${shot.width} / ${shot.height}`}
+                          >
+                            <div class="cover-loader" aria-hidden="true">
+                              <span></span>
+                            </div>
+                            <img
+                              src={shot.src}
+                              alt={shot.alt}
+                              width={shot.width}
+                              height={shot.height}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </div>
+                        </button>
+                        <figcaption>{shot.caption}</figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        )
+      }
 
       <div class="capabilities">
         <div data-reveal>
@@ -111,28 +200,76 @@ const copy = getUi(locale);
     </section>
   </main>
 
+  <dialog class="lightbox" data-lightbox aria-label={copy.caseStudy.zoomScreenshot}>
+    <div class="lightbox__inner">
+      <button
+        type="button"
+        class="lightbox__close"
+        data-lightbox-close
+        aria-label={copy.caseStudy.closePreview}
+      >
+        ×
+      </button>
+      <img data-lightbox-image src="" alt="" />
+      <p data-lightbox-caption></p>
+    </div>
+  </dialog>
+
   <footer class="container">
     <span>© {new Date().getFullYear()} {profile.name} · Software Developer</span>
     <SocialLinks links={profile.socials} compact />
   </footer>
 </BaseLayout>
 
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>("[data-lightbox]");
+  const dialogImage = dialog?.querySelector<HTMLImageElement>("[data-lightbox-image]");
+  const dialogCaption = dialog?.querySelector<HTMLElement>("[data-lightbox-caption]");
+  const closeButton = dialog?.querySelector<HTMLButtonElement>("[data-lightbox-close]");
+
+  if (dialog && dialogImage && dialogCaption) {
+    document.querySelectorAll<HTMLButtonElement>("[data-lightbox-src]").forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        const src = trigger.dataset.lightboxSrc;
+        if (!src) return;
+        dialogImage.src = src;
+        dialogImage.alt = trigger.dataset.lightboxAlt ?? "";
+        dialogCaption.textContent = trigger.dataset.lightboxCaption ?? "";
+        dialog.showModal();
+      });
+    });
+
+    closeButton?.addEventListener("click", () => dialog.close());
+
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+</script>
+
 <style>
-  .project-hero {
+  .project-hero,
+  .case {
     --accent: #b97936;
+  }
+
+  .project-hero {
     padding-block: clamp(5rem, 10vw, 9rem) clamp(3rem, 6vw, 5rem);
   }
 
-  .project-hero--lime {
+  .project-hero--lime,
+  .case--lime {
     --accent: #879d23;
   }
 
-  .project-hero--rose {
+  .project-hero--rose,
+  .case--rose {
     --accent: #bd604d;
   }
 
   .project-hero__meta {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.8rem;
     color: var(--muted);
     font-size: 0.68rem;
@@ -149,17 +286,17 @@ const copy = getUi(locale);
   h1 {
     margin: 1.4rem 0 1.8rem;
     font-family: var(--display);
-    font-size: clamp(5rem, 14vw, 12rem);
+    font-size: clamp(4.2rem, 12vw, 10.5rem);
     font-weight: 700;
-    letter-spacing: -0.08em;
-    line-height: 0.78;
+    letter-spacing: -0.075em;
+    line-height: 0.84;
   }
 
   .project-hero > p {
     max-width: 720px;
     margin: 0;
     color: var(--muted);
-    font-size: clamp(1.05rem, 2vw, 1.4rem);
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
     line-height: 1.6;
   }
 
@@ -206,51 +343,112 @@ const copy = getUi(locale);
   }
 
   .case {
-    padding-block: clamp(6rem, 12vw, 11rem);
+    padding-block: clamp(5rem, 10vw, 9rem);
   }
 
   .case__intro {
     display: grid;
-    grid-template-columns: 0.6fr 1.4fr;
-    gap: 3rem;
-    padding-bottom: clamp(4rem, 8vw, 7rem);
+    grid-template-columns: 0.42fr 1.58fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+    padding-bottom: clamp(4rem, 7vw, 6rem);
   }
 
-  .case__intro > p:last-child {
-    max-width: 850px;
+  .case__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .case__tags li {
+    padding: 0.38rem 0.65rem;
+    color: color-mix(in srgb, var(--ink) 74%, var(--muted));
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--soft);
+    border-radius: 999px;
+  }
+
+  .case__lead {
+    max-width: 740px;
     margin: 0;
+    color: var(--ink);
     font-family: var(--display);
-    font-size: clamp(2rem, 4.4vw, 4.4rem);
-    font-weight: 620;
-    letter-spacing: -0.045em;
-    line-height: 1.08;
+    font-size: clamp(1.18rem, 1.65vw, 1.42rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.45;
+  }
+
+  .case__body {
+    max-width: 760px;
+    margin: 1.15rem 0 0;
+    color: var(--muted);
+    font-size: clamp(0.98rem, 1.15vw, 1.06rem);
+    line-height: 1.75;
+  }
+
+  .case__highlights {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 2.2rem 0 0;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .case__highlights div {
+    padding-right: 0.5rem;
+  }
+
+  .case__highlights dt {
+    color: var(--muted);
+    font-size: 0.66rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .case__highlights dd {
+    margin: 0.45rem 0 0;
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 520;
+    line-height: 1.5;
   }
 
   .case__columns {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: clamp(2rem, 8vw, 8rem);
-    padding-block: clamp(4rem, 8vw, 7rem);
+    gap: clamp(2rem, 7vw, 6rem);
+    padding-block: clamp(4rem, 7vw, 6rem);
     border-block: 1px solid var(--line);
   }
 
   .case__columns article {
     display: grid;
-    grid-template-columns: 2.5rem 1fr;
-    column-gap: 1rem;
+    grid-template-columns: 2.4rem 1fr;
+    column-gap: 0.9rem;
+    align-content: start;
   }
 
   .case__columns article > span {
-    padding-top: 0.5rem;
+    padding-top: 0.45rem;
     color: var(--muted);
     font-size: 0.65rem;
+    font-weight: 700;
   }
 
   .case__columns h2 {
-    margin: 0 0 1rem;
+    margin: 0 0 0.9rem;
     font-family: var(--display);
-    font-size: clamp(2.2rem, 4vw, 3.5rem);
-    font-weight: 680;
+    font-size: clamp(1.85rem, 3.2vw, 2.75rem);
+    font-weight: 660;
     letter-spacing: -0.04em;
   }
 
@@ -258,24 +456,171 @@ const copy = getUi(locale);
     grid-column: 2;
     margin: 0;
     color: var(--muted);
+    font-size: 0.98rem;
     line-height: 1.75;
+  }
+
+  .case__showcases {
+    display: grid;
+  }
+
+  .showcase {
+    padding-block: clamp(4.5rem, 8vw, 7rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .showcase__copy {
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  .showcase h2 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(1.9rem, 3.6vw, 3.1rem);
+    font-weight: 660;
+    letter-spacing: -0.045em;
+    line-height: 1.06;
+  }
+
+  .showcase__description {
+    max-width: 560px;
+    margin: 1.15rem 0 0;
+    color: var(--muted);
+    font-size: 0.98rem;
+    line-height: 1.72;
+  }
+
+  .showcase__bullets {
+    display: grid;
+    gap: 0.85rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .showcase__bullets li {
+    position: relative;
+    padding: 0.95rem 1.1rem 0.95rem 2.2rem;
+    color: var(--ink);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    background: color-mix(in srgb, var(--soft) 68%, var(--white));
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+  }
+
+  .showcase__bullets li::before {
+    position: absolute;
+    top: 1.38rem;
+    left: 1rem;
+    width: 0.44rem;
+    aspect-ratio: 1;
+    background: var(--accent);
+    border-radius: 50%;
+    content: "";
+  }
+
+  .showcase__gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    margin-top: clamp(2.4rem, 4.5vw, 3.6rem);
+  }
+
+  .showcase__gallery--three > .showcase-card:last-child {
+    grid-column: 1 / -1;
+    max-width: min(640px, 100%);
+    justify-self: center;
+    width: 100%;
+  }
+
+  .showcase--split {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: center;
+  }
+
+  .showcase--split .showcase__copy {
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
+  }
+
+  .showcase--split .showcase__gallery {
+    grid-template-columns: 1fr;
+    margin-top: 0;
+  }
+
+  .showcase-card {
+    margin: 0;
+  }
+
+  .showcase-card__trigger {
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: zoom-in;
+    text-align: left;
+  }
+
+  .showcase-card__trigger:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 5px;
+    border-radius: 1.25rem;
+  }
+
+  .showcase-card__media {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #14171d;
+    border: 1px solid color-mix(in srgb, var(--ink) 14%, var(--line));
+    border-radius: 1.25rem;
+    box-shadow: 0 22px 60px rgb(23 27 34 / 0.12);
+    transition:
+      transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 320ms ease;
+  }
+
+  .showcase-card__trigger:hover .showcase-card__media {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 75px rgb(23 27 34 / 0.18);
+  }
+
+  .showcase-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .showcase-card figcaption {
+    margin-top: 0.75rem;
+    padding-inline: 0.2rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
   }
 
   .capabilities {
     display: grid;
     grid-template-columns: 0.8fr 1.2fr;
     gap: clamp(3rem, 8vw, 8rem);
-    padding-top: clamp(5rem, 10vw, 9rem);
+    padding-top: clamp(4.5rem, 8vw, 7.5rem);
   }
 
   .capabilities h2 {
     max-width: 500px;
     margin: 0;
     font-family: var(--display);
-    font-size: clamp(3rem, 6vw, 5.8rem);
-    font-weight: 680;
-    letter-spacing: -0.06em;
-    line-height: 0.92;
+    font-size: clamp(2.6rem, 5.2vw, 4.8rem);
+    font-weight: 670;
+    letter-spacing: -0.055em;
+    line-height: 0.95;
   }
 
   .capabilities ol {
@@ -286,10 +631,12 @@ const copy = getUi(locale);
 
   .capabilities li {
     display: grid;
-    grid-template-columns: 3rem 1fr;
+    grid-template-columns: 2.8rem 1fr;
     gap: 0.8rem;
-    padding-block: 1.35rem;
-    font-size: clamp(1rem, 2vw, 1.3rem);
+    align-items: baseline;
+    padding-block: 1.25rem;
+    font-size: clamp(0.98rem, 1.5vw, 1.16rem);
+    line-height: 1.55;
     border-top: 1px solid var(--line);
   }
 
@@ -300,6 +647,7 @@ const copy = getUi(locale);
   .capabilities li span {
     color: var(--muted);
     font-size: 0.65rem;
+    font-weight: 700;
   }
 
   .next-project {
@@ -351,6 +699,62 @@ const copy = getUi(locale);
     transform: translateY(-50%) rotate(0deg) scale(1.08);
   }
 
+  .lightbox {
+    max-width: min(1060px, 94vw);
+    max-height: 92vh;
+    padding: 0;
+    color: var(--white);
+    background: transparent;
+    border: 0;
+  }
+
+  .lightbox::backdrop {
+    background: rgb(14 17 23 / 0.82);
+    backdrop-filter: blur(8px);
+  }
+
+  .lightbox__inner {
+    position: relative;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .lightbox__inner img {
+    max-width: 100%;
+    max-height: 82vh;
+    width: auto;
+    height: auto;
+    margin-inline: auto;
+    border: 1px solid rgb(255 255 255 / 0.16);
+    border-radius: 1rem;
+    box-shadow: 0 30px 90px rgb(0 0 0 / 0.5);
+  }
+
+  .lightbox__inner p {
+    margin: 0;
+    color: rgb(255 255 255 / 0.82);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .lightbox__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    padding: 0;
+    color: var(--white);
+    font-size: 1.4rem;
+    line-height: 1;
+    background: rgb(17 21 27 / 0.78);
+    border: 1px solid rgb(255 255 255 / 0.22);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
   footer {
     display: flex;
     justify-content: space-between;
@@ -360,19 +764,35 @@ const copy = getUi(locale);
     font-size: 0.72rem;
   }
 
-  @media (max-width: 760px) {
+  @media (max-width: 900px) {
     .case__intro,
+    .showcase__copy,
+    .showcase--split {
+      grid-template-columns: 1fr;
+    }
+
+    .case__intro {
+      gap: 1.4rem;
+    }
+
+    .case__highlights {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .showcase__gallery {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
     .case__columns,
     .capabilities {
       grid-template-columns: 1fr;
     }
 
-    .case__intro {
-      gap: 1rem;
-    }
-
     .case__columns {
-      gap: 4rem;
+      gap: 3rem;
     }
 
     .next-project a {
@@ -389,6 +809,13 @@ const copy = getUi(locale);
 
     .next-project a:hover .next-project__arrow {
       transform: rotate(0deg);
+    }
+
+    footer {
+      flex-direction: column;
+      justify-content: center;
+      gap: 1rem;
+      padding-block: 1.5rem;
     }
   }
 </style>

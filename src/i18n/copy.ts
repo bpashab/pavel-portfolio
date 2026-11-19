@@ -79,6 +79,8 @@ export const ui = {
       capabilitiesTitle: "Що працює всередині.",
       nextProject: "Наступний проєкт",
       descriptionLabel: "Опис проєкту",
+      zoomScreenshot: "Переглянути скріншот у повному розмірі",
+      closePreview: "Закрити перегляд",
     },
   },
   en: {
@@ -158,6 +160,8 @@ export const ui = {
       capabilitiesTitle: "What works inside.",
       nextProject: "Next project",
       descriptionLabel: "Project description",
+      zoomScreenshot: "View screenshot in full size",
+      closePreview: "Close preview",
     },
   },
 } as const satisfies Record<Locale, object>;
