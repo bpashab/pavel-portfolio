@@ -55,6 +55,8 @@ export const ui = {
       projectCount: "проєкти",
       details: "Детальніше про",
       dragHint: "Тягніть, щоб переглянути",
+      previousSlide: "Попередній проєкт",
+      nextSlide: "Наступний проєкт",
       mobileEyebrow: "Незабаром",
       mobileTitle: "Мобільні застосунки",
       mobileDescription:
@@ -133,6 +135,8 @@ export const ui = {
       projectCount: "projects",
       details: "Read more about",
       dragHint: "Drag to explore",
+      previousSlide: "Previous project",
+      nextSlide: "Next project",
       mobileEyebrow: "Coming soon",
       mobileTitle: "Mobile applications",
       mobileDescription: "Finished products will appear here after their App Store and Google Play releases.",

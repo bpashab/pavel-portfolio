@@ -1,6 +1,6 @@
 ---
 interface Props {
-  name: "github" | "linkedin" | "telegram" | "mail" | "arrow" | "external";
+  name: "github" | "linkedin" | "telegram" | "mail" | "arrow" | "arrow-left" | "external";
   size?: number;
 }
 
@@ -55,6 +55,14 @@ const { name, size = 20 } = Astro.props;
       <>
         <path d="M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
         <path d="m14 7 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      </>
+    )
+  }
+  {
+    name === "arrow-left" && (
+      <>
+        <path d="M19 12H5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        <path d="m10 7-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
       </>
     )
   }

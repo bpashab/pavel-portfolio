@@ -107,6 +107,70 @@ a {
   line-height: 0.94;
 }
 
+.cover-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(110deg, #e7e4dc 24%, #f4f2ec 44%, #e7e4dc 64%);
+  background-size: 220% 100%;
+  animation: cover-shimmer 1.5s linear infinite;
+  pointer-events: none;
+  transition:
+    opacity 260ms ease,
+    visibility 0s linear 260ms;
+}
+
+.cover-loader span {
+  width: 2.15rem;
+  aspect-ratio: 1;
+  border: 2.2px solid rgb(23 27 34 / 0.14);
+  border-top-color: var(--focus);
+  border-radius: 50%;
+  animation: cover-spin 0.85s linear infinite;
+}
+
+html.js [data-cover-frame]:not(.is-loaded) > img {
+  opacity: 0;
+}
+
+[data-cover-frame] > img {
+  position: relative;
+  z-index: 1;
+  transition: opacity 320ms ease;
+}
+
+[data-cover-frame].is-instant > img {
+  transition-property: transform !important;
+}
+
+[data-cover-frame].is-loaded .cover-loader {
+  opacity: 0;
+  visibility: hidden;
+  animation: none;
+}
+
+[data-cover-frame].is-loaded .cover-loader span {
+  animation: none;
+}
+
+@keyframes cover-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes cover-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     scroll-behavior: auto;

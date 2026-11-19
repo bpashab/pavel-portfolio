@@ -40,6 +40,9 @@ const enUrl = Astro.site ? new URL(localizePath(Astro.url.pathname, "en"), Astro
     {enUrl && <link rel="alternate" hreflang="en" href={enUrl} />}
     {enUrl && <link rel="alternate" hreflang="x-default" href={enUrl} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
     <title>{title}</title>
   </head>
   <body>
@@ -138,7 +141,38 @@ const enUrl = Astro.site ? new URL(localizePath(Astro.url.pathname, "en"), Astro
         }
       }
 
+      const promoteMatchingCovers = (src: string | null) => {
+        if (!src) return;
+        document
+          .querySelectorAll<HTMLImageElement>(`[data-cover-frame] img[src="${CSS.escape(src)}"]`)
+          .forEach((peer) => {
+            if (peer.loading === "lazy") peer.loading = "eager";
+          });
+      };
+
+      document.querySelectorAll<HTMLElement>("[data-cover-frame]").forEach((frame) => {
+        const image = frame.querySelector("img");
+        if (!image) return;
+
+        const src = image.getAttribute("src");
+
+        if (image.complete && image.naturalWidth > 0) {
+          frame.classList.add("is-instant", "is-loaded");
+          promoteMatchingCovers(src);
+          return;
+        }
+
+        const markLoaded = () => {
+          frame.classList.add("is-loaded");
+          promoteMatchingCovers(src);
+        };
+
+        image.addEventListener("load", markLoaded, { once: true });
+        image.addEventListener("error", markLoaded, { once: true });
+      });
+
       document.querySelectorAll<HTMLElement>("[data-project-carousel]").forEach((carousel) => {
+        const viewport = carousel.querySelector<HTMLElement>(".projects__viewport") ?? carousel;
         const track = carousel.querySelector<HTMLElement>(".projects__track");
         const primaryGroup = carousel.querySelector<HTMLElement>(".projects__group");
         if (!track || !primaryGroup) return;
@@ -146,19 +180,36 @@ const enUrl = Astro.site ? new URL(localizePath(Astro.url.pathname, "en"), Astro
         const desktopLayout = window.matchMedia("(min-width: 901px)");
         let groupWidth = primaryGroup.getBoundingClientRect().width;
         let offset = 0;
+        let stepRemaining = 0;
+        let manualPauseUntil = 0;
         let previousTime = performance.now();
         let frame = 0;
+        let pointerActive = false;
+        let activePointerId = -1;
         let dragging = false;
         let hovered = false;
         let focused = false;
         let startX = 0;
+        let startY = 0;
         let startOffset = 0;
         let dragDistance = 0;
         let suppressClick = false;
+        let suppressClickTimer = 0;
 
         const normalizeOffset = (value: number) => {
           if (groupWidth <= 0) return 0;
           return ((value % groupWidth) + groupWidth) % groupWidth;
+        };
+
+        const getStepSize = () => {
+          const cards = primaryGroup.querySelectorAll<HTMLElement>(".project-card");
+          if (cards.length >= 2) {
+            return cards[1].getBoundingClientRect().left - cards[0].getBoundingClientRect().left;
+          }
+          if (cards.length === 1) {
+            return cards[0].getBoundingClientRect().width;
+          }
+          return 420;
         };
 
         const render = () => {
@@ -169,16 +220,30 @@ const enUrl = Astro.site ? new URL(localizePath(Astro.url.pathname, "en"), Astro
           const elapsed = Math.min(time - previousTime, 64);
           previousTime = time;
 
-          if (
-            desktopLayout.matches &&
-            !reducedMotion &&
-            !dragging &&
-            !hovered &&
-            !focused &&
-            !document.hidden
-          ) {
-            offset = normalizeOffset(offset + elapsed * 0.026);
-            render();
+          if (desktopLayout.matches && !dragging) {
+            if (Math.abs(stepRemaining) > 0.35) {
+              const ease = 1 - Math.exp(-elapsed / 105);
+              const delta = stepRemaining * ease;
+              offset = normalizeOffset(offset + delta);
+              stepRemaining -= delta;
+
+              if (Math.abs(stepRemaining) <= 0.35) {
+                offset = normalizeOffset(offset + stepRemaining);
+                stepRemaining = 0;
+              }
+
+              render();
+            } else if (
+              !reducedMotion &&
+              !hovered &&
+              !focused &&
+              !pointerActive &&
+              time >= manualPauseUntil &&
+              !document.hidden
+            ) {
+              offset = normalizeOffset(offset + elapsed * 0.026);
+              render();
+            }
           }
 
           frame = desktopLayout.matches ? window.requestAnimationFrame(animate) : 0;
@@ -200,58 +265,107 @@ const enUrl = Astro.site ? new URL(localizePath(Astro.url.pathname, "en"), Astro
           } else {
             if (frame) window.cancelAnimationFrame(frame);
             frame = 0;
+            stepRemaining = 0;
             track.style.removeProperty("transform");
           }
         };
 
-        const finishDrag = (event: PointerEvent, cancelled = false) => {
-          if (!dragging) return;
+        carousel.querySelectorAll<HTMLButtonElement>("[data-carousel-step]").forEach((button) => {
+          button.addEventListener("click", () => {
+            if (!desktopLayout.matches) return;
+            if (groupWidth <= 0) groupWidth = primaryGroup.getBoundingClientRect().width;
 
+            const direction = Number(button.dataset.carouselStep || "0");
+            if (!direction) return;
+
+            const step = direction * getStepSize();
+            manualPauseUntil = performance.now() + 1400;
+
+            if (reducedMotion) {
+              stepRemaining = 0;
+              offset = normalizeOffset(offset + step);
+              render();
+            } else {
+              stepRemaining += step;
+              startAnimation();
+            }
+          });
+        });
+
+        const finishPointer = (event: PointerEvent, cancelled = false) => {
+          if (!pointerActive || event.pointerId !== activePointerId) return;
+
+          const wasDragging = dragging;
+          pointerActive = false;
+          activePointerId = -1;
           dragging = false;
           carousel.classList.remove("is-dragging");
           hovered = event.pointerType === "mouse" && carousel.matches(":hover");
 
-          if (carousel.hasPointerCapture(event.pointerId)) {
-            carousel.releasePointerCapture(event.pointerId);
+          if (viewport.hasPointerCapture(event.pointerId)) {
+            viewport.releasePointerCapture(event.pointerId);
           }
 
-          if (!cancelled && dragDistance > 6) {
+          if (!cancelled && wasDragging && dragDistance > 6) {
             suppressClick = true;
-            window.setTimeout(() => {
+            window.clearTimeout(suppressClickTimer);
+            suppressClickTimer = window.setTimeout(() => {
               suppressClick = false;
-            }, 0);
+            }, 80);
           }
         };
 
-        carousel.addEventListener("pointerdown", (event) => {
-          if (!desktopLayout.matches || (event.pointerType === "mouse" && event.button !== 0)) return;
+        viewport.addEventListener("dragstart", (event) => {
+          event.preventDefault();
+        });
 
-          dragging = true;
+        viewport.addEventListener("pointerdown", (event) => {
+          if (!desktopLayout.matches || (event.pointerType === "mouse" && event.button !== 0)) return;
+          if ((event.target as Element | null)?.closest("[data-carousel-controls]")) return;
+
+          if (groupWidth <= 0) groupWidth = primaryGroup.getBoundingClientRect().width;
+          pointerActive = true;
+          activePointerId = event.pointerId;
+          dragging = false;
           dragDistance = 0;
           startX = event.clientX;
+          startY = event.clientY;
           startOffset = offset;
-          carousel.classList.add("is-dragging");
+        });
 
-          try {
-            carousel.setPointerCapture(event.pointerId);
-          } catch {
-            // Synthetic events used by tests do not create an active pointer.
+        viewport.addEventListener("pointermove", (event) => {
+          if (!pointerActive || event.pointerId !== activePointerId) return;
+
+          const deltaX = event.clientX - startX;
+          const deltaY = event.clientY - startY;
+          dragDistance = Math.max(dragDistance, Math.abs(deltaX));
+
+          if (!dragging) {
+            if (Math.abs(deltaX) <= 6) return;
+            if (event.pointerType !== "mouse" && Math.abs(deltaY) > Math.abs(deltaX)) {
+              pointerActive = false;
+              activePointerId = -1;
+              return;
+            }
+
+            dragging = true;
+            stepRemaining = 0;
+            carousel.classList.add("is-dragging");
+
+            try {
+              viewport.setPointerCapture(event.pointerId);
+            } catch {
+              // Synthetic events used by tests do not create an active pointer.
+            }
           }
-        });
 
-        carousel.addEventListener("pointermove", (event) => {
-          if (!dragging) return;
-
-          const delta = event.clientX - startX;
-          dragDistance = Math.max(dragDistance, Math.abs(delta));
-          offset = normalizeOffset(startOffset - delta);
+          offset = normalizeOffset(startOffset - deltaX);
           render();
-
-          if (dragDistance > 6) event.preventDefault();
+          event.preventDefault();
         });
 
-        carousel.addEventListener("pointerup", (event) => finishDrag(event));
-        carousel.addEventListener("pointercancel", (event) => finishDrag(event, true));
+        viewport.addEventListener("pointerup", (event) => finishPointer(event));
+        viewport.addEventListener("pointercancel", (event) => finishPointer(event, true));
 
         carousel.addEventListener(
           "click",
@@ -260,11 +374,12 @@ const enUrl = Astro.site ? new URL(localizePath(Astro.url.pathname, "en"), Astro
               event.preventDefault();
               event.stopImmediatePropagation();
               suppressClick = false;
+              window.clearTimeout(suppressClickTimer);
               return;
             }
 
-            const target = event.target as HTMLElement;
-            const decorativeCard = target.closest<HTMLElement>("[data-carousel-link]");
+            const target = event.target as Element | null;
+            const decorativeCard = target?.closest<HTMLElement>("[data-carousel-link]");
             const href = decorativeCard?.dataset.carouselLink;
 
             if (href) {

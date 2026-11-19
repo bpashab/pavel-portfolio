@@ -60,8 +60,9 @@ const copy = getUi(locale);
       </a>
     </section>
 
-    <div class="project-image container" data-reveal>
-      <img src={project.image} alt={project.imageAlt} width="1024" height="576" />
+    <div class="project-image container" data-reveal data-cover-frame>
+      <div class="cover-loader" aria-hidden="true"><span></span></div>
+      <img src={project.image} alt={project.imageAlt} width="1024" height="576" decoding="async" />
     </div>
 
     <section class="case container" aria-label={copy.caseStudy.descriptionLabel}>
@@ -190,6 +191,8 @@ const copy = getUi(locale);
   }
 
   .project-image {
+    position: relative;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
     background: #ddd8cd;
     border-radius: 1.8rem;
@@ -198,7 +201,8 @@ const copy = getUi(locale);
 
   .project-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
   }
 
   .case {
